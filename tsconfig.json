@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "es6",
+        "target": "ESNext",
+        "lib": ["DOM", "es6"],
+        "moduleResolution": "node",
+        "strict": true,
+        "emitDeclarationOnly": true,
+        "declaration": true,
+        "sourceMap": false,
+        "outDir": "dist",
+        "removeComments": false,
+        "experimentalDecorators": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": ["node_modules/@types"]
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "lib"]
+}
