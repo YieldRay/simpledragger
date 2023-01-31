@@ -1,5 +1,8 @@
 # simpledragger
 
+[![](https://img.shields.io/npm/v/simpledragger)](https://www.npmjs.com/package/simpledragger)
+[![](https://badgen.net/packagephobia/install/simpledragger)](https://packagephobia.com/result?p=simpledragger)
+
 ```html
 <body>
     <div class="test">

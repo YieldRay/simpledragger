@@ -13,14 +13,26 @@
         "build": "npx tsc && env NODE_ENV=production rollup -c",
         "dev": "rollup -c -w"
     },
-    "dependencies": {
-        "lit-html": "^2.6.1"
-    },
     "devDependencies": {
+        "lit-html": "^2.6.1",
         "@rollup/plugin-node-resolve": "^15.0.1",
         "esbuild": "^0.17.5",
         "rollup": "^3.12.0",
         "rollup-plugin-esbuild": "^5.0.0",
         "rollup-plugin-minify-html-literals": "^1.2.6"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/YieldRay/simpledragger.git"
+    },
+    "keywords": [
+        "drag",
+        "window"
+    ],
+    "author": "YieldRay",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/YieldRay/simpledragger/issues"
+    },
+    "homepage": "https://github.com/YieldRay/simpledragger#readme"
 }
