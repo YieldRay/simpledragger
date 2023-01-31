@@ -15,7 +15,8 @@ style.innerHTML = css`
         background-color: #f0f0f0;
         border-radius: 0.15em;
         box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1), -1px -1px 1px rgba(0, 0, 0, 0.1);
-        z-index: 10;
+        z-index: 1;
+        overflow: hidden;
     }
     .simple-dragger-header {
         background-color: #fff;
@@ -55,27 +56,35 @@ style.innerHTML = css`
     }
     .simple-dragger-body {
         min-height: 2em;
+        overflow: auto;
     }
 `;
 document.head.append(style);
 
 export default class DragWindow {
     // DOM
-    private _dom = createDiv("", "simple-dragger-container");
-    constructor(title: string, initStyle?: Partial<CSSStyleDeclaration>) {
+    private _dom = document.createElement("div");
+    constructor(title: string, initStyle?: Partial<CSSStyleDeclaration>, percentage = false) {
+        this._dom.className = "simple-dragger-container";
         const dragRef = createRef<HTMLDivElement>();
         render(
             html`
                 <header class="simple-dragger-header">
                     <div ${ref(dragRef)} class="simple-dragger-title">${title}</div>
                     <div style="display:flex; flex-wrap:nowrap">
-                        <div class="simple-dragger-button" .onclick=${() => this.toggleMin()}>
+                        <div
+                            class="simple-dragger-button simple-dragger-button-minimize"
+                            .onclick=${() => this.toggleMin()}
+                        >
                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <title>window-minimize</title>
                                 <path d="M20,14H4V10H20" />
                             </svg>
                         </div>
-                        <div class="simple-dragger-button" .onclick=${() => this.toggleMax()}>
+                        <div
+                            class="simple-dragger-button simple-dragger-button-maximize"
+                            .onclick=${() => this.toggleMax()}
+                        >
                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <title>window-maximize</title>
                                 <path d="M4,4H20V20H4V4M6,8V18H18V8H6Z" />
@@ -97,15 +106,17 @@ export default class DragWindow {
             this._dom
         );
 
+        this._dom.style.top = "0";
+        this._dom.style.left = "0";
         applyCSSStyle(this._dom, initStyle);
-        makeDraggable(this._dom, dragRef.value!);
+        makeDraggable(this._dom, dragRef.value!, percentage);
         document.body.append(this._dom);
     }
 
     /**
      * 关闭窗口
      */
-    close() {
+    public close() {
         this._dom.remove();
     }
 
@@ -127,8 +138,8 @@ export default class DragWindow {
                 top: this._dom.style.top,
             };
             applyCSSStyle(this._dom, {
-                width: "100vw",
-                height: "100vh",
+                width: "calc(100%)",
+                height: "calc(100%)",
                 left: "0",
                 top: "0",
             });
@@ -141,7 +152,7 @@ export default class DragWindow {
     /**
      * 切换是否最小化
      */
-    toggleMin(): this {
+    public toggleMin(): this {
         if (this.isMin) {
             this._dom.style.display = "";
         } else {
@@ -151,30 +162,34 @@ export default class DragWindow {
         return this;
     }
 
-    title(s: string, isHTML = false) {
-        this._dom.querySelector(".simple-dragger-title")![isHTML ? "innerHTML" : "textContent"] = s;
+    private get _body() {
+        return this._dom.querySelector(".simple-dragger-body")! as HTMLElement;
     }
-    append(...nodes: (string | Node)[]) {
-        this._dom.querySelector(".simple-dragger-body")!.append(...nodes);
-    }
-    html(h: string) {
-        this._dom.querySelector(".simple-dragger-body")!.innerHTML = h;
-    }
-    text(t: string) {
-        this._dom.querySelector(".simple-dragger-body")!.textContent = t;
-    }
-}
 
-function createDiv(html: string, className: string, attrs?: Partial<HTMLDivElement>) {
-    const div = document.createElement("div");
-    div.innerHTML = html;
-    div.className = className;
-    if (attrs) {
-        for (let k in attrs) {
-            (div as any)[k] = (attrs as any)[k];
-        }
+    public title(s: string, isHTML = false) {
+        this._body[isHTML ? "innerHTML" : "textContent"] = s;
     }
-    return div;
+    public append(...nodes: (string | Node)[]) {
+        this._body.append(...nodes);
+    }
+    public html(h: string) {
+        this._body.innerHTML = h;
+    }
+    public text(t: string) {
+        this._body.textContent = t;
+    }
+    /**
+     * 渲染 lit-html 模板
+     * @example
+     * w.render(html`<p>lit-html</p>`)
+     */
+    public render(l: ReturnType<typeof html>) {
+        render(l, this._body);
+    }
+
+    public getButton(cls: "minimize" | "maximize" | "close") {
+        return this._dom.querySelector(`.simple-dragger-button-${cls}`);
+    }
 }
 
 function applyCSSStyle(ele: HTMLElement, styl?: Partial<CSSStyleDeclaration>) {

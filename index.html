@@ -21,17 +21,22 @@
             <hr />
             <p>not draggable</p>
         </div>
+
+        <div style="min-height: 100em"></div>
+        footer
     </body>
     <script>
         const test = document.querySelector(".test");
         simpledragger(test);
 
         // test window
-        var win = new simpledragger.Window("title", {
-            left: "40%",
-            top: "40%",
-            // do not use `transform`, it hurts!
-        });
+        var win = new simpledragger.Window("title", {}, true);
         win.html("hello");
+        win.render(simpledragger.html`?`);
+        win.getButton("close").remove();
+        win.getButton("minimize").remove();
+
+        // test
+        new simpledragger.Window("test", {}, true);
     </script>
 </html>

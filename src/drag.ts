@@ -1,6 +1,5 @@
 export default function simpleDragger(hostEle: HTMLElement) {
     hostEle.style.position = "fixed";
-    hostEle.style.zIndex = "2";
     hostEle.style.margin = "0";
     hostEle.querySelectorAll("[data-draggable]").forEach((e) => {
         if (e instanceof HTMLElement) {
@@ -32,9 +31,11 @@ export function makeDraggable(hostEle: HTMLElement, targetEle: HTMLElement, perc
             const pointerY = event.clientY;
             const left = pointerX - shiftX;
             const top = pointerY - shiftY;
+            const docWidth = document.documentElement.clientWidth;
+            const docHeight = document.documentElement.clientHeight;
             if (percentage) {
-                hostEle.style.left = cssPercentage(left, document.documentElement.clientWidth);
-                hostEle.style.top = cssPercentage(top, document.documentElement.clientHeight);
+                hostEle.style.left = cssPercentage(left, docWidth);
+                hostEle.style.top = cssPercentage(top, docHeight);
             } else {
                 hostEle.style.left = left + "px";
                 hostEle.style.top = top + "px";
@@ -43,10 +44,12 @@ export function makeDraggable(hostEle: HTMLElement, targetEle: HTMLElement, perc
             hostEle.style.right = "";
             // prevent moving element outside the window
             const rect = hostEle.getBoundingClientRect();
-            if (hostEle.offsetLeft <= 0) hostEle.style.left = "0px";
-            if (rect.top <= 0) hostEle.style.top = "0px";
-            if (rect.right >= window.innerWidth) hostEle.style.left = window.innerWidth - rect.width + "px";
-            if (rect.bottom >= window.innerHeight) hostEle.style.top = window.innerHeight - rect.height + "px";
+            if (hostEle.offsetLeft <= 0) hostEle.style.left = percentage ? "0%" : "0px";
+            if (rect.top <= 0) hostEle.style.top = percentage ? "0%" : "0px";
+            if (rect.right >= docWidth)
+                hostEle.style.left = percentage ? `calc(100% - ${rect.width}px)` : docWidth - rect.width + "px";
+            if (rect.bottom >= docHeight)
+                hostEle.style.top = percentage ? `calc(100% - ${rect.height}px)` : docHeight - rect.height + "px";
         };
 
         targetEle.addEventListener("pointermove", onPointerMove);
