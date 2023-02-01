@@ -24,19 +24,23 @@
 
         <div style="min-height: 100em"></div>
         footer
+
+        <template id="temp">
+            <h1>default width and height is <code>max-content</code></h1>
+        </template>
     </body>
     <script>
         const test = document.querySelector(".test");
         simpledragger(test);
 
         // test window
-        var win = new simpledragger.Window("title", {}, true);
+        var win = new simpledragger.Window("title", { width: "300px", height: "300px" }, true);
         win.html("hello");
         win.render(simpledragger.html`?`);
         win.getButton("close").remove();
         win.getButton("minimize").remove();
 
         // test
-        new simpledragger.Window("test", {}, true);
+        new simpledragger.Window("test", {}, true).html(temp.innerHTML);
     </script>
 </html>

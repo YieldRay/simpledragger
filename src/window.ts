@@ -12,13 +12,19 @@ const style = document.createElement("style");
 style.innerHTML = css`
     .simple-dragger-container {
         position: fixed;
+        max-width: 100%;
+        max-height: 100%;
+        width: max-content;
+        height: max-content;
         background-color: #f0f0f0;
         border-radius: 0.15em;
         box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1), -1px -1px 1px rgba(0, 0, 0, 0.1);
         z-index: 1;
         overflow: hidden;
+        transition: width 0.05s, height 0.05s;
     }
     .simple-dragger-header {
+        height: 1.75em; /* important */
         background-color: #fff;
         display: flex;
         align-items: center;
@@ -56,6 +62,7 @@ style.innerHTML = css`
     }
     .simple-dragger-body {
         min-height: 2em;
+        max-height: calc(100vh - 1.75em); /* important */
         overflow: auto;
     }
 `;
@@ -74,7 +81,7 @@ export default class DragWindow {
                     <div style="display:flex; flex-wrap:nowrap">
                         <div
                             class="simple-dragger-button simple-dragger-button-minimize"
-                            .onclick=${() => this.toggleMin()}
+                            @click=${() => (this.isMin = !this.isMin)}
                         >
                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <title>window-minimize</title>
@@ -83,14 +90,14 @@ export default class DragWindow {
                         </div>
                         <div
                             class="simple-dragger-button simple-dragger-button-maximize"
-                            .onclick=${() => this.toggleMax()}
+                            @click=${() => (this.isMax = !this.isMax)}
                         >
                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <title>window-maximize</title>
                                 <path d="M4,4H20V20H4V4M6,8V18H18V8H6Z" />
                             </svg>
                         </div>
-                        <div class="simple-dragger-button simple-dragger-button-close" .onclick=${() => this.close()}>
+                        <div class="simple-dragger-button simple-dragger-button-close" @click=${() => this.close()}>
                             <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <title>window-close</title>
                                 <path
@@ -120,46 +127,43 @@ export default class DragWindow {
         this._dom.remove();
     }
 
-    isMax = false;
-    private _lastPosition = { top: "0", left: "0" };
+    private _lastCSSText = this._dom.style.cssText;
+    private _isMax = false;
     /**
-     * 切换是否最大化
+     * 设置是否最大化窗口
      */
-    toggleMax(): this {
-        if (this.isMax) {
+    get isMax(): boolean {
+        return this._isMax;
+    }
+    set isMax(m: boolean) {
+        if (m) {
+            this._lastCSSText = this._dom.style.cssText;
             applyCSSStyle(this._dom, {
-                width: "",
-                height: "",
-                ...this._lastPosition,
-            });
-        } else {
-            this._lastPosition = {
-                left: this._dom.style.left,
-                top: this._dom.style.top,
-            };
-            applyCSSStyle(this._dom, {
-                width: "calc(100%)",
-                height: "calc(100%)",
+                width: "100%",
+                height: "100%",
                 left: "0",
                 top: "0",
             });
+        } else {
+            this._dom.style.cssText = this._lastCSSText;
         }
-        this.isMax = !this.isMax;
-        return this;
+        this._isMax = m;
     }
 
-    isMin = false;
+    private _isMin = false;
     /**
-     * 切换是否最小化
+     * 设置是否最小化
      */
-    public toggleMin(): this {
-        if (this.isMin) {
-            this._dom.style.display = "";
-        } else {
+    get isMin(): boolean {
+        return this._isMin;
+    }
+    set isMin(m: boolean) {
+        if (m) {
             this._dom.style.display = "none";
+        } else {
+            this._dom.style.display = "";
         }
-        this.isMin = !this.isMin;
-        return this;
+        this._isMin = m;
     }
 
     private get _body() {
@@ -189,6 +193,25 @@ export default class DragWindow {
 
     public getButton(cls: "minimize" | "maximize" | "close") {
         return this._dom.querySelector(`.simple-dragger-button-${cls}`);
+    }
+
+    /**
+     * 设置zIndex的快捷方法
+     */
+    public z(z: number | string): this {
+        this._dom.style.zIndex = z.toString();
+        return this;
+    }
+    /**
+     *
+     * @returns 居中
+     */
+    public center(): this {
+        applyCSSStyle(this._dom, {
+            left: `calc(50% - ${this._dom.clientWidth / 2}px)`,
+            top: `calc(50% - ${this._dom.clientHeight / 2}px)`,
+        });
+        return this;
     }
 }
 
