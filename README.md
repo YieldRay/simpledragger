@@ -16,13 +16,12 @@
 
 <script>
     // make an element draggable
-    const test = document.querySelector(".test");
-    simpledragger(test);
+    simpledragger(document.querySelector(".test"));
 </script>
 ```
 
 ```js
 // create a window (set width and height is a highly recommended)
 const win = new simpledragger.Window("title", { width: "400px", height: "300px" });
-win.html("hello, world");
+win.html("<h1>hello, world</h1>");
 ```

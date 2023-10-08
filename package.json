@@ -1,7 +1,7 @@
 {
     "name": "simpledragger",
     "type": "module",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "types": "dist/index.d.ts",
     "main": "dist/simpledragger.js",
     "module": "dist/simpledragger.esm.js",
@@ -14,10 +14,10 @@
         "dev": "rollup -c -w"
     },
     "devDependencies": {
-        "lit-html": "^2.6.1",
-        "@rollup/plugin-node-resolve": "^15.0.1",
-        "esbuild": "^0.17.5",
-        "rollup": "^3.12.0",
+        "@rollup/plugin-node-resolve": "^15.2.2",
+        "esbuild": "^0.19.4",
+        "lit-html": "^2.8.0",
+        "rollup": "^4.0.2",
         "rollup-plugin-esbuild": "^5.0.0",
         "rollup-plugin-minify-html-literals": "^1.2.6"
     },

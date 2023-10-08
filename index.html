@@ -7,6 +7,10 @@
         <title>simpledragger</title>
         <script src="dist/simpledragger.js"></script>
         <style>
+            body {
+                margin: 0;
+                min-height: 100vh;
+            }
             .test {
                 margin: 1em;
                 box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2), -1px -1px 1px rgba(0, 0, 0, 0.2);
@@ -22,21 +26,20 @@
             <p>not draggable</p>
         </div>
 
-        <div style="min-height: 100em"></div>
-        footer
-
         <template id="temp">
             <h1>default width and height is <code>max-content</code></h1>
         </template>
     </body>
     <script>
-        const test = document.querySelector(".test");
-        simpledragger(test);
+        const { litHTML } = simpledragger;
+        const { html } = litHTML;
+
+        simpledragger(document.querySelector(".test"));
 
         // test window
         var win = new simpledragger.Window("title", { width: "300px", height: "300px" }, true);
         win.html("hello");
-        win.render(simpledragger.html`?`);
+        win.render(html`?`);
         win.getButton("close").remove();
         win.getButton("minimize").remove();
 
