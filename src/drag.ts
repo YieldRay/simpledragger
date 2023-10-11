@@ -1,12 +1,3 @@
-export default function simpleDragger(hostEle: HTMLElement) {
-    hostEle.style.margin = "0";
-    hostEle.querySelectorAll("[data-draggable]").forEach((e) => {
-        if (e instanceof HTMLElement) {
-            makeDraggable(hostEle, e);
-        }
-    });
-}
-
 function cssPercentage(lhs: number, rhs: number, toFixed?: number): string {
     const percent = (lhs / rhs) * 100;
     return (typeof toFixed === "number" ? percent.toFixed(toFixed) : percent.toString()) + "%";
