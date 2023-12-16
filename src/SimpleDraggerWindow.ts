@@ -1,35 +1,28 @@
 import { makeDraggable } from "./drag";
 
-/**
- * just for highlight
- */
-function html(strings: TemplateStringsArray, ...data: any[]) {
-    let s = strings[0];
-    for (let i = 1; i < strings.length; i++) s += strings[i] + data[i - 1];
-    return s;
-}
-
 export default class SimpleDraggerWindow extends HTMLElement {
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: "open" });
-        shadowRoot.innerHTML = html`
+        shadowRoot.innerHTML = String.raw`
             <style>
                 :host {
                     position: fixed;
+                    display: inline-block;
                     max-width: 100%;
                     max-height: 100%;
-                    width: max-content;
-                    height: max-content;
+                    width: fit-content;
+                    height: fit-content;
                     background-color: #f0f0f0;
                     border-radius: 0.15em;
                     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1), -1px -1px 1px rgba(0, 0, 0, 0.1);
                     z-index: 1;
                     overflow: hidden;
                     transition: width 0.05s, height 0.05s;
+                    --header-height: 1.75em;
                 }
                 .simple-dragger-header {
-                    height: 1.75em; /* important */
+                    height: var(--header-height);
                     background-color: #fff;
                     display: flex;
                     align-items: center;
@@ -67,7 +60,7 @@ export default class SimpleDraggerWindow extends HTMLElement {
                 }
                 .simple-dragger-body {
                     min-height: 2em;
-                    max-height: calc(100vh - 1.75em); /* important */
+                    max-height: calc(100vh - var(--header-height));
                     overflow: auto;
                 }
             </style>
@@ -83,7 +76,7 @@ export default class SimpleDraggerWindow extends HTMLElement {
                     </div>
                     <div class="simple-dragger-button simple-dragger-button-maximize">
                         <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <title>window-maximize</title>
+                            <title>simple-dragger-window-maximize</title>
                             <path d="M4,4H20V20H4V4M6,8V18H18V8H6Z" />
                         </svg>
                     </div>
@@ -97,7 +90,7 @@ export default class SimpleDraggerWindow extends HTMLElement {
                     </div>
                 </div>
             </header>
-            <article class="simple-dragger-body"><slot /></article>
+            <div class="simple-dragger-body"><slot /></div>
         `;
     }
 
@@ -107,25 +100,15 @@ export default class SimpleDraggerWindow extends HTMLElement {
 
         makeDraggable(this, this.shadowRoot!.querySelector(".simple-dragger-title")!, this.hasAttribute("percentage"));
 
-        this.shadowRoot?.querySelector(".simple-dragger-button-close")!.addEventListener("click", () => this.close());
+        this.shadowRoot!.querySelector(".simple-dragger-button-close")!.addEventListener("click", () => this.close());
 
-        this.shadowRoot
-            ?.querySelector(".simple-dragger-button-maximize")!
-            .addEventListener("click", () => (this.isMax = !this.isMax));
+        this.shadowRoot!.querySelector(".simple-dragger-button-maximize")!.addEventListener("click", () =>
+            this.toggleMaximize()
+        );
 
-        this.shadowRoot
-            ?.querySelector(".simple-dragger-button-minimize")!
-            .addEventListener("click", () => (this.isMin = !this.isMin));
-    }
-
-    attributeChangedCallback(attr: string, oldVal: string | null, newVal: string | null) {
-        switch (attr) {
-            case "foo":
-            // do something with 'foo' attribute
-
-            case "bar":
-            // do something with 'bar' attribute
-        }
+        this.shadowRoot!.querySelector(".simple-dragger-button-minimize")!.addEventListener("click", () =>
+            this.toggleMinimize()
+        );
     }
 
     /**
@@ -133,54 +116,56 @@ export default class SimpleDraggerWindow extends HTMLElement {
      */
     public close() {
         this.dispatchEvent(new CustomEvent("close"));
+        this.remove();
     }
 
-    private _lastCSSText = this.style.cssText;
-    private _isMax = false;
-    /**
-     * 设置是否最大化窗口
-     */
-    get isMax(): boolean {
-        return this._isMax;
+    public get isMaximize() {
+        return this.style.width === "100%" && this.style.height === "100%";
     }
-    set isMax(m: boolean) {
-        if (m) {
-            this._lastCSSText = this.style.cssText;
+
+    #styleBeforeMaximize: Partial<CSSStyleDeclaration> = {};
+
+    public toggleMaximize() {
+        if (this.isMaximize) {
+            applyCSSStyle(this, this.#styleBeforeMaximize);
+        } else {
+            this.#styleBeforeMaximize = {
+                left: this.style.left,
+                top: this.style.top,
+                width: this.style.width,
+                height: this.style.height,
+            };
             applyCSSStyle(this, {
-                width: "100%",
-                height: "100%",
                 left: "0",
                 top: "0",
+                width: "100%",
+                height: "100%",
             });
-        } else {
-            this.style.cssText = this._lastCSSText;
         }
-        this._isMax = m;
+        this.dispatchEvent(new CustomEvent("maximize"));
     }
 
-    private _isMin = false;
-    /**
-     * 设置是否最小化
-     */
-    get isMin(): boolean {
-        return this._isMin;
+    public get isMinimize() {
+        return this.style.display === "none";
     }
-    set isMin(m: boolean) {
-        if (m) {
+
+    public toggleMinimize() {
+        if (this.isMinimize) {
+            this.style.display = "inline-block";
+        } else {
             this.style.display = "none";
-        } else {
-            this.style.display = "";
         }
-        this._isMin = m;
+        this.dispatchEvent(new CustomEvent("minimize"));
     }
 
     /**
-     * 设置zIndex的快捷方法
+     * 设置 zIndex 的快捷方法
      */
     public z(z: number | string): this {
         this.style.zIndex = z.toString();
         return this;
     }
+
     /**
      *
      * @returns 居中
@@ -194,15 +179,15 @@ export default class SimpleDraggerWindow extends HTMLElement {
     }
 }
 
-function applyCSSStyle(ele: HTMLElement, styl?: Partial<CSSStyleDeclaration>) {
-    if (!styl) return;
-    for (const k in styl) ele.style[k] = styl[k] || "";
-}
-
-window.customElements.define("simple-dragger-window", SimpleDraggerWindow);
+customElements.define("simple-dragger-window", SimpleDraggerWindow);
 
 declare global {
     interface HTMLElementTagNameMap {
         "simple-dragger-window": SimpleDraggerWindow;
     }
+}
+
+function applyCSSStyle(ele: HTMLElement, styl?: Partial<CSSStyleDeclaration>) {
+    if (!styl) return;
+    for (const k in styl) ele.style[k] = styl[k] || "";
 }

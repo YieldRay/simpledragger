@@ -11,14 +11,20 @@
                 margin: 0;
                 min-height: 100vh;
             }
+
+            footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                background: #333;
+                color: #fff;
+                z-index: 2;
+                display: flex;
+                gap: 2px;
+            }
         </style>
     </head>
     <body>
-        <simple-dragger-window>
-            <strong slot="title">draggable</strong>
-            <p>not draggable</p>
-        </simple-dragger-window>
-
         <simple-dragger>
             <strong data-draggable>draggable</strong>
             <hr />
@@ -33,11 +39,31 @@
             <p>not draggable</p>
         </div>
 
-        <script>
-            simpledragger.makeDraggable(
-                document.querySelector(".test"),
-                document.querySelector(".test > [data-draggable]")
-            );
-        </script>
+        <simple-dragger-window id="win">
+            <strong slot="title">draggable</strong>
+            <p>not draggable</p>
+        </simple-dragger-window>
+
+        <footer>
+            <button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+                    <path
+                        fill="#0078D4"
+                        d="M0 0h121.329v121.329H0V0Zm134.671 0H256v121.329H134.671V0ZM0 134.671h121.329V256H0V134.671Zm134.671 0H256V256H134.671V134.671Z"
+                    />
+                </svg>
+            </button>
+            <button id="button">window</button>
+        </footer>
     </body>
+    <script>
+        simpledragger.makeDraggable(
+            document.querySelector(".test"),
+            document.querySelector(".test > [data-draggable]")
+        );
+
+        button.addEventListener("click", () => {
+            win.toggleMinimize();
+        });
+    </script>
 </html>
