@@ -10,7 +10,7 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
         shadowRoot.innerHTML = String.raw`
         <slot></slot>
         <footer>
-            <button>
+            <button class="meta-button" popovertarget="meta-popover">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
                     <path
                         fill="#0078D4"
@@ -18,9 +18,15 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                     />
                 </svg>
             </button>
+            <div id="meta-popover" popover>
+                <div class="meta-content"><slot name="meta"></slot></div>
+            </div>
             <div class="windows-list"></div>
         </footer>
         <style>
+            :host {
+                --height: 40px;
+            }
             footer {
                 position: fixed;
                 bottom: 0;
@@ -32,20 +38,50 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                 z-index: 2;
                 display: flex;
                 gap: 2px;
-                /* !!! */
-                height: 40px; 
+                height: var(--height);
+            }
+            .meta-button {
+                cursor: pointer;
+                border: none;
+                background: transparent;
+                & svg {
+                    scale: 0.8;
+                }
+                &:hover {
+                    background: rgb(0 0 0 / 0.1);
+                }
+            }
+            #meta-popover {
+                border: none;
+                .meta-content {
+                    position: fixed;
+                    left: 0;
+                    bottom: var(--height);
+                    background: rgb(0 0 0 / 0.2);
+                    width: max(40vw, 400px);
+                    display: inline-block;
+                    animation: appear-from-bottom 200ms;
+                }
             }
             .windows-list {
                 display: flex;
+                overflow-x: auto;
                 gap: 2px;
                 button {
                     cursor: pointer;
                     border: none;
                     color: #fff;
                     background: rgb(0 0 0 / 0.2);
-                    &:hover{
+                    &:hover {
                         background: rgb(0 0 0 / 0.1);
                     }
+                }
+                .minimize-true,
+                .minimize-false {
+                    width: 80px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 .minimize-true {
                     opacity: 0.5;
@@ -54,6 +90,15 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                 .minimize-false {
                     opacity: 1;
                     border-bottom: solid 4px blue;
+                }
+            }
+
+            @keyframes appear-from-bottom {
+                from {
+                    translate: 0 1rem;
+                }
+                to {
+                    translate: 0 0;
                 }
             }
         </style>
@@ -69,13 +114,18 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
     private _renderWindowsList() {
         const windows = this.windows;
 
+        windows.forEach((win) => {
+            win.onpointerdown = () => {
+                windows.forEach((w) => (w.style.zIndex = ""));
+                win.style.zIndex = "2";
+            };
+        });
+
         const list = this.shadowRoot!.querySelector(".windows-list")!;
         list.innerHTML = "";
         list.append(
             ...windows.map((win) => {
                 win.maximizeStyle = {
-                    left: "0px",
-                    top: "0px",
                     width: "100%",
                     height: "calc(100% - 40px)",
                 };

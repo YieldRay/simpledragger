@@ -48,6 +48,14 @@
                 <strong slot="title">draggable</strong>
                 <p>not draggable</p>
             </simple-dragger-window>
+
+            <aside slot="meta">
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo dolorum reiciendis excepturi debitis
+                    molestias expedita repudiandae labore illum odit voluptate consequatur dolorem quibusdam delectus
+                    ad, nesciunt velit, cumque esse dolore?
+                </p>
+            </aside>
         </simple-dragger-window-manager>
     </body>
     <script type="module">
@@ -57,7 +65,11 @@
 
         button.onclick = () => {
             const w = document.createElement("simple-dragger-window");
-            w.innerHTML = `<span slot="title">${Math.random()}</span>`;
+            w.innerHTML = `<span slot="title">${Math.random()}</span>
+            ${crypto.randomUUID()}<br/><br/>
+            ${crypto.randomUUID()}`;
+            w.width = "150px";
+            w.height = "100px";
             document.querySelector("simple-dragger-window-manager").append(w);
         };
     </script>
