@@ -7,6 +7,7 @@ export function makeDraggable(hostEle: HTMLElement, dragEle: HTMLElement, usePer
     dragEle.style.cursor = "move";
     dragEle.style.userSelect = "none";
     dragEle.style.touchAction = "none";
+    dragEle.ondragstart = (e) => e.preventDefault();
     hostEle.style.position = "fixed";
 
     dragEle.addEventListener("pointerdown", (event) => {

@@ -17,7 +17,6 @@ export default class SimpleDraggerWindow extends HTMLElement {
                     background-color: #f0f0f0;
                     border-radius: 0.15em;
                     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1), -1px -1px 1px rgba(0, 0, 0, 0.1);
-                    z-index: 1;
                     overflow: hidden;
                     transition: width 0.05s, height 0.05s;
                     --header-height: 1.75em;
@@ -103,12 +102,15 @@ export default class SimpleDraggerWindow extends HTMLElement {
         `;
     }
 
-    connectedCallback() {
-        applyCSSStyle(this, {
-            left: "0",
-            top: "0",
-        });
+    get title() {
+        const slot = this.shadowRoot!.querySelector("slot[name=title]") as HTMLSlotElement;
+        return slot
+            .assignedNodes({ flatten: true })
+            .map((n) => n.textContent)
+            .join("");
+    }
 
+    connectedCallback() {
         const root = this.shadowRoot!;
 
         makeDraggable(this, root.querySelector(".simple-dragger-title")!, this.hasAttribute("percentage"));
