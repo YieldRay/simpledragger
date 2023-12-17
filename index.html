@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>simpledragger</title>
-        <script src="dist/simpledragger.js"></script>
+        <script src="src/index.ts" type="module"></script>
         <style>
             body {
                 margin: 0;
@@ -56,11 +56,10 @@
             <button id="button">window</button>
         </footer>
     </body>
-    <script>
-        simpledragger.makeDraggable(
-            document.querySelector(".test"),
-            document.querySelector(".test > [data-draggable]")
-        );
+    <script type="module">
+        import { makeDraggable } from "./src/drag.ts";
+
+        makeDraggable(document.querySelector(".test"), document.querySelector(".test > [data-draggable]"));
 
         button.addEventListener("click", () => {
             win.toggleMinimize();

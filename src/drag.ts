@@ -44,7 +44,10 @@ export function makeDraggable(hostEle: HTMLElement, dragEle: HTMLElement, usePer
         };
 
         dragEle.addEventListener("pointermove", onPointerMove);
-        const cancelListener = () => dragEle.removeEventListener("pointermove", onPointerMove);
+        const cancelListener = (e: PointerEvent) => {
+            dragEle.releasePointerCapture(e.pointerId);
+            dragEle.removeEventListener("pointermove", onPointerMove);
+        };
         dragEle.addEventListener("pointercancel", cancelListener);
         dragEle.addEventListener("pointerup", cancelListener);
     });

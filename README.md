@@ -6,13 +6,13 @@
 add script tag to load the web-component
 
 ```html
-<script src="https://unpkg.com/simpledragger" />
+<script type="module" src="https://unpkg.com/simpledragger" />
 ```
 
 use the window component
 
 ```html
-<simple-dragger-window onclose="e.target.remove()">
+<simple-dragger-window onclose="event.target.remove()">
     <strong slot="title">draggable</strong>
     <p>not draggable</p>
 </simple-dragger-window>
@@ -40,7 +40,7 @@ or use the low-level api
 </div>
 
 <script type="module">
-    import { simpledragger } from "https://unpkg.com/simpledragger/dist/simpledragger.esm.js";
+    import { makeDraggable } from "https://unpkg.com/simpledragger";
     // make an element draggable
     makeDraggable(document.querySelector(".test"), document.querySelector(".test > [data-draggable]"));
 </script>

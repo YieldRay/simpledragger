@@ -7,8 +7,9 @@ export default class SimpleDraggerWindow extends HTMLElement {
         shadowRoot.innerHTML = String.raw`
             <style>
                 :host {
-                    position: fixed;
                     display: inline-block;
+                    opacity: 1;
+                    position: fixed;
                     max-width: 100%;
                     max-height: 100%;
                     width: fit-content;
@@ -37,7 +38,6 @@ export default class SimpleDraggerWindow extends HTMLElement {
                     flex-wrap: nowrap;
                     align-items: center;
                 }
-
                 .simple-dragger-button {
                     font-size: 0.75em;
                     padding: 0.5em;
@@ -62,6 +62,15 @@ export default class SimpleDraggerWindow extends HTMLElement {
                     min-height: 2em;
                     max-height: calc(100vh - var(--header-height));
                     overflow: auto;
+                }
+                /* fade */
+                :host {
+                    transition-property: opacity, display;
+                    transition-duration: 200ms;
+                    transition-behavior: allow-discrete;
+                    @starting-style {
+                        opacity: 0;     
+                    }
                 }
             </style>
 
@@ -95,54 +104,69 @@ export default class SimpleDraggerWindow extends HTMLElement {
     }
 
     connectedCallback() {
-        this.style.top = "0";
-        this.style.left = "0";
+        applyCSSStyle(this, {
+            left: "0",
+            top: "0",
+        });
 
-        makeDraggable(this, this.shadowRoot!.querySelector(".simple-dragger-title")!, this.hasAttribute("percentage"));
+        const root = this.shadowRoot!;
 
-        this.shadowRoot!.querySelector(".simple-dragger-button-close")!.addEventListener("click", () => this.close());
+        makeDraggable(this, root.querySelector(".simple-dragger-title")!, this.hasAttribute("percentage"));
 
-        this.shadowRoot!.querySelector(".simple-dragger-button-maximize")!.addEventListener("click", () =>
-            this.toggleMaximize()
-        );
+        root.querySelector(".simple-dragger-button-close")!.addEventListener("click", () => {
+            this.close();
+            this.dispatchEvent(new CustomEvent("close"));
+        });
 
-        this.shadowRoot!.querySelector(".simple-dragger-button-minimize")!.addEventListener("click", () =>
-            this.toggleMinimize()
-        );
+        root.querySelector(".simple-dragger-button-maximize")!.addEventListener("click", () => {
+            this.toggleMaximize();
+            this.dispatchEvent(new CustomEvent("maximize"));
+        });
+
+        root.querySelector(".simple-dragger-button-minimize")!.addEventListener("click", () => {
+            this.toggleMinimize();
+            this.dispatchEvent(new CustomEvent("minimize"));
+        });
     }
 
-    /**
-     * 关闭窗口
-     */
     public close() {
-        this.dispatchEvent(new CustomEvent("close"));
         this.remove();
     }
 
-    public get isMaximize() {
-        return this.style.width === "100%" && this.style.height === "100%";
-    }
-
     #styleBeforeMaximize: Partial<CSSStyleDeclaration> = {};
+
+    /**
+     * 允许自定义最大化样式
+     */
+    public maximizeStyle: Partial<CSSStyleDeclaration> = {
+        left: "0px",
+        top: "0px",
+        width: "100%",
+        height: "100%",
+    };
+
+    public get isMaximize() {
+        for (const [key, val] of Object.entries(this.maximizeStyle)) {
+            if (Reflect.get(this.style, key) !== val) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public toggleMaximize() {
         if (this.isMaximize) {
             applyCSSStyle(this, this.#styleBeforeMaximize);
         } else {
-            this.#styleBeforeMaximize = {
-                left: this.style.left,
-                top: this.style.top,
-                width: this.style.width,
-                height: this.style.height,
-            };
-            applyCSSStyle(this, {
-                left: "0",
-                top: "0",
-                width: "100%",
-                height: "100%",
-            });
+            // 记录之前的样式，之后可以恢复
+            this.#styleBeforeMaximize = {};
+            for (const key of Object.keys(this.maximizeStyle)) {
+                Reflect.set(this.#styleBeforeMaximize, key, Reflect.get(this.style, key));
+            }
+
+            // 应用最大化样式
+            applyCSSStyle(this, this.maximizeStyle);
         }
-        this.dispatchEvent(new CustomEvent("maximize"));
     }
 
     public get isMinimize() {
@@ -151,11 +175,22 @@ export default class SimpleDraggerWindow extends HTMLElement {
 
     public toggleMinimize() {
         if (this.isMinimize) {
-            this.style.display = "inline-block";
+            applyCSSStyle(this, {
+                display: "inline-block",
+                opacity: "1",
+            });
+            this.animate(
+                { opacity: ["0", "1"] },
+                {
+                    duration: 200,
+                }
+            );
         } else {
-            this.style.display = "none";
+            applyCSSStyle(this, {
+                display: "none",
+                opacity: "0",
+            });
         }
-        this.dispatchEvent(new CustomEvent("minimize"));
     }
 
     /**
@@ -167,8 +202,7 @@ export default class SimpleDraggerWindow extends HTMLElement {
     }
 
     /**
-     *
-     * @returns 居中
+     * 居中的快捷方法
      */
     public center(): this {
         applyCSSStyle(this, {
