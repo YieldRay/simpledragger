@@ -5,8 +5,8 @@
     "types": "dist/index.d.ts",
     "main": "dist/simpledragger.js",
     "files": [
-        "dist",
-        "src"
+        "src",
+        "dist"
     ],
     "scripts": {
         "dev": "vite",
@@ -15,9 +15,7 @@
     },
     "devDependencies": {
         "typescript": "^5.3.3",
-        "vite": "^5.0.10"
-    },
-    "dependencies": {
+        "vite": "^5.0.10",
         "rollup-plugin-minify-html-literals": "^1.2.6"
     }
 }
