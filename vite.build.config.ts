@@ -1,21 +1,18 @@
 import { defineConfig } from "vite";
-import _minifyHTML from "rollup-plugin-minify-html-literals";
-// @ts-ignore
-const minifyHTML: _minifyHTML = _minifyHTML.default;
+import { minifyTemplateLiterals } from "rollup-plugin-minify-template-literals";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
-    return {
-        build: {
-            lib: {
-                entry: "src/index.ts",
-                formats: ["es"],
-            },
-            minify: "esbuild",
-            target: "esnext",
-            rollupOptions: {
-                plugins: [minifyHTML()],
-            },
+export default defineConfig({
+    build: {
+        lib: {
+            entry: "src/index.ts",
+            formats: ["es"],
+            fileName: "index",
         },
-    };
+        minify: false,
+        target: "esnext",
+        rollupOptions: {
+            plugins: [minifyTemplateLiterals()],
+        },
+    },
 });

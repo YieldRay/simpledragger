@@ -8,7 +8,7 @@ export default class SimpleDragger extends HTMLElement {
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: "open" });
-        shadowRoot.innerHTML = `<slot></slot>`;
+        shadowRoot.innerHTML = /*html */ `<slot></slot>`;
     }
 
     connectedCallback() {
@@ -18,8 +18,7 @@ export default class SimpleDragger extends HTMLElement {
                 ?.querySelector("slot")!
                 .assignedElements({ flatten: true })
                 .filter(isHTMLElement)
-                .map((e) => e.querySelector("[data-draggable]"))
-                .at(0) as HTMLElement) || this
+                .map((e) => e.querySelector("[data-draggable]"))[0] as HTMLElement) || this
         );
     }
 }
