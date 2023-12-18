@@ -1,4 +1,6 @@
+import type SimpleDraggerWindowManager from "./SimpleDraggerWindowManager";
 import { makeDraggable } from "./drag";
+import { createIframeFromHTML } from "./utils/code";
 
 const html = String.raw.bind(String);
 
@@ -263,6 +265,27 @@ export default class SimpleDraggerWindow extends HTMLElement {
 
     public set top(top: string) {
         this.style.left = top;
+    }
+
+    public manager?: SimpleDraggerWindowManager;
+
+    public async loadHTML(html: string) {
+        const span = document.createElement("span");
+        const iframe = createIframeFromHTML(html);
+        span.slot = "title";
+        iframe.width = "100%";
+        iframe.height = "100%";
+        iframe.style.border = "0";
+        const { promise, resolve, reject } = Promise.withResolvers<HTMLIFrameElement>();
+        iframe.onload = () => {
+            span.textContent = iframe.contentDocument!.title;
+            this.manager?.renderWindowsList();
+            resolve(iframe);
+        };
+        iframe.onerror = reject;
+        this.innerHTML = "";
+        this.append(span, iframe);
+        return await promise;
     }
 }
 

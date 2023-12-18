@@ -6,23 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>simpledragger</title>
         <script src="src/index.ts" type="module"></script>
-        <style>
-            body {
-                margin: 0;
-                min-height: 100vh;
-            }
-
-            footer {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-                background: #333;
-                color: #fff;
-                z-index: 2;
-                display: flex;
-                gap: 2px;
-            }
-        </style>
     </head>
     <body>
         <simple-dragger style="right: 0">
@@ -72,5 +55,8 @@
             w.height = "100px";
             document.querySelector("simple-dragger-window-manager").append(w);
         };
+
+
+        win.loadHTML(`<title>ttttt</title><h1>h1</h1>`)
     </script>
 </html>

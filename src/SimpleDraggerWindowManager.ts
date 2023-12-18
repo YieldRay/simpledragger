@@ -37,6 +37,7 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                 }
                 footer {
                     position: fixed;
+                    left: 0;
                     bottom: 0;
                     width: 100%;
                     max-width: 100vw;
@@ -61,7 +62,7 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                 }
                 #meta-popover {
                     border: none;
-                    .meta-content {
+                    & .meta-content {
                         position: fixed;
                         left: 0;
                         bottom: var(--height);
@@ -87,8 +88,8 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                             filter: brightness(90%);
                         }
                     }
-                    .minimize-true,
-                    .minimize-false {
+                    & .minimize-true,
+                    & .minimize-false {
                         width: 80px;
                         white-space: nowrap;
                         overflow: hidden;
@@ -122,10 +123,11 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
         return eles.filter((e) => e instanceof SimpleDraggerWindow) as SimpleDraggerWindow[];
     }
 
-    private _renderWindowsList() {
+    renderWindowsList() {
         const windows = this.windows;
 
         windows.forEach((win) => {
+            win.manager = this;
             win.onpointerdown = () => {
                 windows.forEach((w) => (w.style.zIndex = ""));
                 win.style.zIndex = "2";
@@ -144,7 +146,7 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
                 button.textContent = win.title;
                 button.onclick = () => {
                     win.toggleMinimize();
-                    this._renderWindowsList();
+                    this.renderWindowsList();
                 };
                 button.className = win.isMinimize ? "minimize-true" : "minimize-false";
                 win.addEventListener("minimize", () => {
@@ -156,9 +158,12 @@ export default class SimpleDraggerWindowManager extends HTMLElement {
     }
 
     connectedCallback() {
-        const slot = this.shadowRoot!.querySelector("slot")!;
-        slot.addEventListener("slotchange", () => {
-            this._renderWindowsList();
+        this.renderWindowsList();
+
+        this.shadowRoot!.querySelectorAll("slot").forEach((slot) => {
+            slot.addEventListener("slotchange", () => {
+                this.renderWindowsList();
+            });
         });
     }
 }
