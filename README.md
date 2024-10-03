@@ -1,15 +1,19 @@
-# simpledragger
+# simple dragger
 
 [![](https://img.shields.io/npm/v/simpledragger)](https://www.npmjs.com/package/simpledragger)
 [![](https://badgen.net/packagephobia/install/simpledragger)](https://packagephobia.com/result?p=simpledragger)
 
-add script tag to load the web-component
+This is a just-for-fun package. For production, please consider using alternative libraries like [neodrag](https://github.com/PuruVJ/neodrag).
+
+# Usage
+
+Add this script tag to load the web-component.
 
 ```html
 <script type="module" src="https://unpkg.com/simpledragger" />
 ```
 
-use the window component
+Use the window component.
 
 ```html
 <simple-dragger-window onclose="event.target.remove()">
@@ -18,7 +22,7 @@ use the window component
 </simple-dragger-window>
 ```
 
-use the low-level component
+Use the low-level component.
 
 ```html
 <simple-dragger>
@@ -28,7 +32,7 @@ use the low-level component
 </simple-dragger>
 ```
 
-or use the low-level api
+Or use the low-level API.
 
 ```html
 <div class="test">
@@ -42,6 +46,9 @@ or use the low-level api
 <script type="module">
     import { makeDraggable } from "https://unpkg.com/simpledragger";
     // make an element draggable
-    makeDraggable(document.querySelector(".test"), document.querySelector(".test > [data-draggable]"));
+    makeDraggable(
+        document.querySelector(".test"),
+        document.querySelector(".test > [data-draggable]")
+    );
 </script>
 ```
